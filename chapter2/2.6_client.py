@@ -9,6 +9,7 @@ with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
         data = input('>')
         if not data:
             break
+        print('send data',data)
         s.sendall(data.encode('utf-8'))
 
         data=s.recv(BUFSIZ)

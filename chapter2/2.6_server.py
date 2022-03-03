@@ -9,13 +9,14 @@ PORT=50007
 with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
     s.bind((HOST,PORT))
     s.listen(1)
+    conn,add = s.accept()
+    print("connected by ",add)
     while True:
-        conn,add = s.accept()
-        print("connected by ",add)
         data = conn.recv(BUFSIZ)
         if not data:break
 
         msg = data.decode('utf-8')
+        print('receive msg ',msg)
         if msg == 'os':
             conn.send(os.name.encode('utf-8'))
         elif msg == 'ls':
