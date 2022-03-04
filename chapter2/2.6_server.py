@@ -9,6 +9,8 @@ PORT=50007
 with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
     s.bind((HOST,PORT))
     s.listen(1)
+    conn,add = s.accept()
+    print("connected by ",add)
     while True:
         conn,add = s.accept()
         print("connected by ",add)
