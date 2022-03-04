@@ -1,50 +1,19 @@
-import socket
-import os
-import time
+from socket import *
+from time import ctime
 
-BUFSIZ = 1024
+
 HOST='localhost'
-PORT=50007
-"""
-with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
-    s.bind((HOST,PORT))
-    s.listen(1)
-    conn,add = s.accept()
-    print("connected by ",add)
-    while True:
-        conn,add = s.accept()
-        print("connected by ",add)
-        while True:
-            data = conn.recv(BUFSIZ)
-            if not data:break
-            msg = data.decode('utf-8')
-            print("receive msg",msg)
-            if msg == 'os':
-                conn.send(os.name.encode('utf-8'))
-            elif msg == 'ls':
-                conn.send(str(os.listdir()).encode('utf-8'))
-            else:
-                conn.send(time.ctime().encode('utf-8'))
-        conn.close()
-"""
-s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-s.bind((HOST,PORT))
-s.listen(1)
-while True:
-    conn,add = s.accept()
-    print("connected by ",add)
-    while True:
-        data = conn.recv(BUFSIZ)
-        if not data:break
-        msg = data.decode('utf-8')
-        print("receive msg",msg)
-        if msg == 'os':
-            conn.send(os.name.encode('utf-8'))
-        elif msg == 'ls':
-            conn.send(str(os.listdir()).encode('utf-8'))
-        else:
-            conn.send(time.ctime().encode('utf-8'))
-        ##conn.sendall(data)
-    conn.close()
+PORT=13
+BUFSIZ=1024
 
-    
+udp_svr=socket(AF_INET,SOCK_DGRAM)
+udp_svr.bind((HOST,PORT))
+while True:
+    print('svr waiting form message...')
+    data,addr=udp_svr.recvfrom(BUFSIZ)
+    if data:
+        udp_svr.sendto(ctime().encode('utf-8'),addr);
+        print('svr receive from ',addr,' msg is ',data)
+    else :
+        break
+udp_svr.close()

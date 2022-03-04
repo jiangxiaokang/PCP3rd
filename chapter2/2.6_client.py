@@ -1,18 +1,11 @@
-import socket
-HOST='localhost'
-PORT=50007
-BUFSIZ = 1024
-with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
-    s.connect((HOST,PORT))
-    while True:
-        #s.sendall(b'hello, world')
-        data = input('>')
-        if not data:
-            break
-        print('send data',data)
-        s.sendall(data.encode('utf-8'))
+from socket import *
 
-        data=s.recv(BUFSIZ)
-        if not data:
-            break
-        print(data.decode('utf-8'))
+HOST='localhost'
+BUFSIZ=1024
+udp_cli=socket(AF_INET,SOCK_DGRAM)
+while True:
+    PORT = getservbyname("daytime",'udp')
+    udp_cli.sendto('get day time '.encode('utf-8'),(HOST,PORT));
+    data,addr = udp_cli.recvfrom(BUFSIZ)
+    print('svr receive from ',addr,' msg is ',data)
+udp_cli.close()
