@@ -1,9 +1,9 @@
+from http import client
+from pydoc import cli
 import socket
 from threading import Thread
 '''
-2.8 全双工聊天。更新上一个练习的解决方案，修改它以使你的聊天服务现在成为全双
-工模式，意味着通信两端都可以发送并接收消息，并且二者相互独立。
-用多线程来做
+2-9 多用户全双工聊天。进一步修改你的解决方案，以使你的聊天服务支持多用户。
 '''
 
 class MyThread(Thread):
@@ -16,7 +16,7 @@ class MyThread(Thread):
     def run(self):
         self.func(*self.args)
 
-def recv_message(conn,addr,buffsize):
+def deal_client(conn ,addr, buffsize):
     if not isinstance(conn,socket.socket):
         raise TypeError
     while True:
@@ -25,8 +25,14 @@ def recv_message(conn,addr,buffsize):
             if not data:
                 break
             msg = data.decode('utf-8')
-            print('\n',addr,' say:',msg)
+            print(addr,' say:',msg)
+            for e in client_list:
+                if e == conn:
+                    continue
+                e.send(data)
+
             if msg == 'bye':
+                client_list.remove(conn)
                 break
         except ConnectionResetError:
             print('connection reset')
@@ -35,7 +41,7 @@ def recv_message(conn,addr,buffsize):
             print('connection abort')
             break
 
-
+client_list = []
 def main():
     HOST = 'localhost'
     PORT = 51234    
@@ -45,21 +51,13 @@ def main():
         svr.bind(ADDR)
         svr.listen(1)
         print('svr wait for connection...')
-        conn,conn_adr  = svr.accept()
-        #new thread for recving msg
-        print('new connection : ',conn_adr)
-        t1 = MyThread(recv_message,(conn,conn_adr,BUFSIZ))
-        t1.start()
         while True:
-            reply_data = input('input replay>')
-            try:
-                conn.send(reply_data.encode('utf-8'))
-            except ConnectionResetError:
-                print('send data connection reset error')
-                break
-            except ConnectionAbortedError:
-                print('connection aborted')
-                break
+            conn,conn_adr  = svr.accept()
+            #new thread for recving msg
+            print('new connection : ',conn_adr)
+            client_list.append(conn)
+            t1 = MyThread(deal_client,(conn,conn_adr,BUFSIZ))
+            t1.start()
 
 
 if __name__ == '__main__':
